@@ -16,15 +16,11 @@ private:
     int width, height;
     sf::Vertex* vertices;
     sf::Texture** textureGrid;
+    sf::Sprite sprite;
 public:
     //*************************************************************************
     // Constructor/Deconstructor
     //*************************************************************************
-    /*
-    * Grid()
-    * Pre: int, int
-    * Constructor that takes width and height int values
-    */
     Grid(const int&, const int&);
     ~Grid();
     //*************************************************************************
@@ -47,7 +43,7 @@ public:
     //*************************************************************************
     // Helper Functions
     //*************************************************************************
-    void inputTexture(const int&, const int&, sf::Texture&);
+    void inputTexture(const int&, const int&, sf::Texture);
 };
 
 #endif // Grid
