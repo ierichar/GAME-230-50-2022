@@ -1,19 +1,29 @@
 /**
-* Homework 1 - Simple SFML Painting Tool
-* Ian Richardson
-* September 27th, 2022
+* Pair Programming Simple Particle Effect Exercise
 * 
-* Description: A simple paint tool that allows for different brush options
-*  and the ability to save the window as a screenshot.
+* Authors: Adam Carter, Ian Richardson
+* 
+* Started:  October 13th, 2022
+* Finished: October 17th, 2022
+* 
+* Description: This program is a simple Particle and ParticleEffect class to 
+*   create a particle effect on left mouse clicks. Specifically, the particle,
+*   particle effect, and game classes should have the following 
+*   requirements/constraints:
+*    - A particle class that maintains a shape, velocity, and lifespan. Your 
+*       particles should all be one shape, such as a circle (do NOT worry 
+*       about inheritance or polymorphism yet).
+*   - A particle effect class that creates and maintains an array of particles.
+*       These particles should be stored on and removed from the heap. The 
+        array should not be dynamically allocated (i.e., you can make an 
+        assumption that it will be the same number of particles 
+        created/destroyed every time for the particle effect).
+*   - Your game class should be modified so that it maintains a particle effect
+*       pointer and creates a new particle effect whenever there is a left 
+*       mouse click.
 * 
 * Controls:
-*  Move mouse - draw
-*  r - set color red
-*  g - " green
-*  b - " blue
-*  mouse wheel up - increase brush radius
-*  mouse wheel down - decrease brush radius
-*  p - save window as screenshot
+*  LMB - generate particle effect
 */
 
 #include "ParticleEffect.h"
@@ -25,73 +35,60 @@ using namespace sf;
 //*****************************************************************************
 // Game Loop Functions
 //*****************************************************************************
-bool initialize();
-bool handleInput();
-bool update();
-bool render();
+void handleInput(RenderWindow& window, Event e, ParticleEffect* PE);
+void update(ParticleEffect* PE);
+void render(RenderWindow& window, ParticleEffect* PE);
 
 //*****************************************************************************
-// Global Variables
+// Constants
 //*****************************************************************************
-RenderWindow window;
-
+#define WINDOW_W 800
+#define WINDOW_H 600
 
 int main()
 {
-    RenderWindow window(VideoMode(800, 600), "Particle Program");
+    RenderWindow window(VideoMode(WINDOW_W, WINDOW_H), "Particle Program");
 
-    sf::CircleShape shape(100.f);
-    shape.setFillColor(sf::Color::Green);
+    ParticleEffect* PE = nullptr;
 
-    sf::Image screenshot;
-
+    Event event;
     while (window.isOpen())
     {
-        sf::Event event;
         while (window.pollEvent(event))
         {
-            if (event.type == sf::Event::Closed)
-                window.close();
-
-            // Press r, g, b for (r)ed, (g)reen, (b)lue
-            // Save RGB colors on brush
-            if ((event.type == sf::Event::KeyPressed) &&
-                (event.key.code == sf::Keyboard::R))
-                shape.setFillColor(sf::Color::Red);
-            if ((event.type == sf::Event::KeyPressed) &&
-                (event.key.code == sf::Keyboard::G))
-                shape.setFillColor(sf::Color::Green);
-            if ((event.type == sf::Event::KeyPressed) &&
-                (event.key.code == sf::Keyboard::B))
-                shape.setFillColor(sf::Color::Blue);
-
-            // Scroll down/up
-            // Adjust size of brush based on mouse wheel up or down
-            if (event.type == sf::Event::MouseWheelMoved)
-                if (event.mouseWheel.delta > 0)
-                    shape.setRadius(shape.getRadius() + 4);
-                else shape.setRadius(shape.getRadius() - 4);
-            
-            // Space key creates a screenshot
-            if ((event.type == sf::Event::KeyPressed) &&
-                (event.key.code == sf::Keyboard::Space)) {
-                sf::Texture texture;
-                texture.create(window.getSize().x, window.getSize().y);
-                texture.update(window);
-                if (texture.copyToImage().saveToFile("Homework 1 Screenshot.png"))
-                {
-                    std::cout << "Screenshot saved to Homework 1 Screenshot.png" << std::endl;
-                }
-            }
+            handleInput(window, event, PE);
         }
-
-        // window.clear();
-        shape.setPosition(
-            sf::Mouse::getPosition(window).x - shape.getRadius(), 
-            sf::Mouse::getPosition(window).y - shape.getRadius());
-        window.draw(shape);
-        window.display();
+        update(PE);
+        render(window, PE);
     }
 
     return 0;
+}
+
+void handleInput(RenderWindow& window, Event e, ParticleEffect* PE) {
+    if (e.type == Event::Closed)
+        window.close();
+    if (e.type == Event::MouseButtonPressed) {
+        if (e.mouseButton.button == Mouse::Left) {
+            if (PE != nullptr) {
+                delete PE;
+                PE = nullptr;
+            }
+            // window.clear(); // Bad practice? (move to render)
+            PE = new ParticleEffect();
+            PE->Emit(e.mouseButton.x, e.mouseButton.y);
+        }
+    }
+}
+
+void update(ParticleEffect* PE) {
+    if (PE != nullptr)
+        PE->update();
+}
+
+void render(RenderWindow& window, ParticleEffect* PE) {
+    if (PE != nullptr)
+        PE->render(window);
+
+    window.display();
 }

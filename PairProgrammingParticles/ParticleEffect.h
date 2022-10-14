@@ -12,33 +12,50 @@
 
 #define NUM_OF_PARTICLES 10
 
+#define LO -5.f
+#define HI 5.f
+
 using namespace sf;
 
 class ParticleEffect {
 private:
 	class Particle {
 	private:
-		Shape* shape;
+		CircleShape* shape;
 		Vector2f velocity;
 		float lifespan;
+
 	public:
-		Particle(float);	// constructor
-		bool update(RenderWindow&);
-		bool render(RenderWindow&);
+		// Constructors & Deconstructors
+		Particle(const std::string&, Vector2f&, const float, Vector2f&);
+		~Particle();
+
+		// Game Loop Functions
+		void update();
+		void render(RenderWindow&);
+
+		// Helper Functions
 		Vector2f getPosition() const;
 		bool isAlive() const;
-		~Particle();
 	};
 
-	Particle* particle;
+	Particle* particles[NUM_OF_PARTICLES];
 
 public:
+	// Constructors & Deconstructors
 	ParticleEffect();
-	bool update(RenderWindow&);
-	bool render(RenderWindow&);
-	bool Emit();
-	bool AddParticle();
 	~ParticleEffect();
+
+	// Game Loop Functions
+	void update();
+	void render(RenderWindow&);
+
+	// Helper Functions
+	void Emit(const float, const float);
+	void AddParticle(short, const std::string&, Vector2f&, const float, 
+		Vector2f&);
+	float RandomFloat() const;
 };
+
 
 #endif // ParticleEffect.h
